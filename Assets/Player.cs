@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -69,7 +71,9 @@ public class Player : MonoBehaviour
         if (transform.position.y < -15)
             transform.position = Vector3.zero;
 
-        print("Vel: " + rb.velocity.magnitude);
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+            SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
+
         /*if (Keyboard.current.spaceKey.isPressed)
         {
             float angle = 45;
