@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     private float cooldownCurrent_Grounded = 0f;
     private float groundedAngleTolerance = 25f;
     public float groundedGravityScale = 1f;
+    public float airtimeGravity = 1f;
     private Rigidbody2D rb;
 
     [Space(5)]
@@ -187,7 +188,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            rb.gravityScale = 1;
+            rb.gravityScale = airtimeGravity;
         }
 
     }
