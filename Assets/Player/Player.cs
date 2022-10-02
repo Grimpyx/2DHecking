@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Hooker))]
+
 public class Player : MonoBehaviour
 {
     [Space(5)] [SerializeField] private bool debug = true;
@@ -18,7 +21,7 @@ public class Player : MonoBehaviour
     private float groundedAngleTolerance = 25f;
     public float groundedGravityScale = 1f;
     public float airtimeGravity = 1f;
-    private Rigidbody2D rb;
+    [HideInInspector] public Rigidbody2D rb;
 
     [Space(5)]
     [Header("Movement:")]
@@ -38,9 +41,12 @@ public class Player : MonoBehaviour
     [Space(3)]
     public float jumpAcceleration;
 
-    [Space(5)] [Header("Inputs:")] [SerializeField] private InputActionReference jumpAction;
+    [Space(5)]
+    [Header("Inputs:")]
+    public Vector2 aimWorldPoint;
+    /*[SerializeField] private InputActionReference jumpAction;
     [SerializeField] private InputActionReference hookAction;
-    [SerializeField] private InputActionReference moveAction;
+    [SerializeField] private InputActionReference moveAction;*/
     public Controls controls;
 
     // Start is called before the first frame update
@@ -69,11 +75,13 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (transform.position.y < -15)
+        if (transform.position.y < -200)
             transform.position = Vector3.zero;
 
         if (Keyboard.current.rKey.wasPressedThisFrame)
             SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
+
+        CalculateMouse();
 
         /*if (Keyboard.current.spaceKey.isPressed)
         {
@@ -91,6 +99,8 @@ public class Player : MonoBehaviour
 
         }*/
 
+        Move();
+
         if (cooldownCurrent_Grounded > 0)
         {
             cooldownCurrent_Grounded -= Time.deltaTime;
@@ -100,7 +110,6 @@ public class Player : MonoBehaviour
     {
         CastGroundedRays();
         GroundedMechanics();
-        Move();
         VelocityDampen();
     }
 
@@ -153,7 +162,7 @@ public class Player : MonoBehaviour
             Vector2 force = 0.01f * airMoveMultiplier * moveAcceleration * rb.mass * input;
             if (rb.velocity.magnitude < velocitySlowMoveThreshold) force *= velocitySlowMoveMultiplier;
             force.y -= Mathf.Clamp(rb.gravityScale, 0, 1) * force.y;
-            rb.AddForce(force, ForceMode2D.Impulse);
+            rb.AddForce(Time.deltaTime * 100f * force, ForceMode2D.Impulse);
 
         }
         else // When attached to the ground
@@ -172,7 +181,7 @@ public class Player : MonoBehaviour
             if (debug) Debug.DrawLine(transform.position, transform.position + (Vector3)moveDir, Color.blue);
 
             // Should only move perpendicular to the point of "gravity"
-            rb.AddForce(force, ForceMode2D.Impulse);
+            rb.AddForce(Time.deltaTime * 100f * force, ForceMode2D.Impulse);
 
         }
     }
@@ -229,5 +238,11 @@ public class Player : MonoBehaviour
         }
         localGroundedDirection.Normalize();
         if (localGroundedDirection != Vector2.zero && debug) Debug.DrawLine(transform.position, transform.position + (Vector3)localGroundedDirection, Color.green);
+    }
+
+    void CalculateMouse()
+    {
+        Vector2 aimInput = controls.Hecker.Aim.ReadValue<Vector2>();
+        aimWorldPoint = Camera.main.ScreenToWorldPoint(aimInput);
     }
 }

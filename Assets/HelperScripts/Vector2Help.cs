@@ -33,4 +33,11 @@ public static class Vector2Help
         float a_1 = Vector2.Dot(a, b) / b.magnitude;
         return a_1 * b.normalized;
     }
+
+    /*public static Vector2 ClampLength(Vector2 v, float a, float b)
+    {
+        float l = v.magnitude;
+        l = Mathf.Clamp(l, a, b);
+        return Vector2
+    }*/
 }

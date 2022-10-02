@@ -62,6 +62,15 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""AimButton"",
+                    ""type"": ""Button"",
+                    ""id"": ""dcef1b9f-d3b2-4536-85ed-ef2b3ce7a065"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold"",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -196,6 +205,17 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                     ""action"": ""Aim"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""901e010f-f578-4a4f-b3e4-9f4fbadd6d88"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""AimButton"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -231,6 +251,7 @@ public partial class @Controls : IInputActionCollection2, IDisposable
         m_Hecker_Move = m_Hecker.FindAction("Move", throwIfNotFound: true);
         m_Hecker_Hook = m_Hecker.FindAction("Hook", throwIfNotFound: true);
         m_Hecker_Aim = m_Hecker.FindAction("Aim", throwIfNotFound: true);
+        m_Hecker_AimButton = m_Hecker.FindAction("AimButton", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -294,6 +315,7 @@ public partial class @Controls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Hecker_Move;
     private readonly InputAction m_Hecker_Hook;
     private readonly InputAction m_Hecker_Aim;
+    private readonly InputAction m_Hecker_AimButton;
     public struct HeckerActions
     {
         private @Controls m_Wrapper;
@@ -302,6 +324,7 @@ public partial class @Controls : IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_Hecker_Move;
         public InputAction @Hook => m_Wrapper.m_Hecker_Hook;
         public InputAction @Aim => m_Wrapper.m_Hecker_Aim;
+        public InputAction @AimButton => m_Wrapper.m_Hecker_AimButton;
         public InputActionMap Get() { return m_Wrapper.m_Hecker; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -323,6 +346,9 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                 @Aim.started -= m_Wrapper.m_HeckerActionsCallbackInterface.OnAim;
                 @Aim.performed -= m_Wrapper.m_HeckerActionsCallbackInterface.OnAim;
                 @Aim.canceled -= m_Wrapper.m_HeckerActionsCallbackInterface.OnAim;
+                @AimButton.started -= m_Wrapper.m_HeckerActionsCallbackInterface.OnAimButton;
+                @AimButton.performed -= m_Wrapper.m_HeckerActionsCallbackInterface.OnAimButton;
+                @AimButton.canceled -= m_Wrapper.m_HeckerActionsCallbackInterface.OnAimButton;
             }
             m_Wrapper.m_HeckerActionsCallbackInterface = instance;
             if (instance != null)
@@ -339,6 +365,9 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                 @Aim.started += instance.OnAim;
                 @Aim.performed += instance.OnAim;
                 @Aim.canceled += instance.OnAim;
+                @AimButton.started += instance.OnAimButton;
+                @AimButton.performed += instance.OnAimButton;
+                @AimButton.canceled += instance.OnAimButton;
             }
         }
     }
@@ -367,5 +396,6 @@ public partial class @Controls : IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnHook(InputAction.CallbackContext context);
         void OnAim(InputAction.CallbackContext context);
+        void OnAimButton(InputAction.CallbackContext context);
     }
 }

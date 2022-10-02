@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(LineRenderer))] 
+[RequireComponent(typeof(Player))]
+
 public class Hooker : MonoBehaviour
 {
+    public bool debug;
+
     public enum AimType { mouse, joystick }
     public AimType aimInputType = AimType.mouse;
 
@@ -18,15 +24,6 @@ public class Hooker : MonoBehaviour
     private Player player;
 
     private Vector2 attachedPoint;
-    /*public Vector2 AttachedPoint
-    {
-        get => attachedPoint;
-        set
-        {
-            attachedPoint = value;
-
-        }
-    }*/
 
     private bool isHooked = false;
     //private Rigidbody2D hookedBody;
@@ -50,7 +47,7 @@ public class Hooker : MonoBehaviour
             // Set rope visuals
             ropeRenderer.enabled = true;
             ropeRenderer.positionCount = 2;
-            Vector3[] positions = new Vector3[2] { transform.position, attachedPoint };
+            Vector3[] positions = new Vector3[2] { attachedPoint, transform.position };
             ropeRenderer.SetPositions(positions);
         }
     }
@@ -63,10 +60,10 @@ public class Hooker : MonoBehaviour
             if(player.controls.Hecker.Jump.IsPressed())
             {
                 isHooked = false;
-                Debug.DrawLine(transform.position, transform.position + (Vector3)rb.velocity.normalized, Color.blue, 2f);
+                if (debug) Debug.DrawLine(transform.position, transform.position + (Vector3)rb.velocity.normalized, Color.blue, 2f);
                 float alpha = Mathf.Clamp(Vector2.SignedAngle((attachedPoint - (Vector2)transform.position).normalized, rb.velocity.normalized), -10, 10);
                 rb.velocity = Vector2Help.RotateVector(rb.velocity + ropeJumpSpeedGain * rb.velocity.normalized, alpha);
-                Debug.DrawLine(transform.position, transform.position + (Vector3)rb.velocity.normalized, Color.red, 2f);
+                if (debug) Debug.DrawLine(transform.position, transform.position + (Vector3)rb.velocity.normalized, Color.red, 2f);
             }
 
             Vector2 dir = (attachedPoint - (Vector2)transform.position).normalized;
@@ -103,10 +100,17 @@ public class Hooker : MonoBehaviour
             }
             else
             {
-                float forceMult = 1f;
+                /*float forceMult = 1f;
                 if (velDirAngle > 90)
                     forceMult = wrongDirectionMultiplier;
-                rb.AddForce(0.001f * forceMult * hookForce * 9.81f * 2f * rb.mass * dir, ForceMode2D.Impulse);
+                rb.AddForce(0.001f * forceMult * hookForce * 9.81f * 2f * rb.mass * dir, ForceMode2D.Impulse);*/
+
+                if (velDirAngle > 90)
+                {
+                    Vector2 removedComponent = Vector2Help.ProjectVector(rb.velocity, dir);
+                    rb.velocity -= Time.fixedDeltaTime * 40f * removedComponent;
+                }
+                rb.AddForce(0.001f * hookForce * 9.81f * 2f * rb.mass * dir, ForceMode2D.Impulse);
             }
 
 
@@ -131,40 +135,30 @@ public class Hooker : MonoBehaviour
             return;
         }
 
-        Vector2 aimInput = player.controls.Hecker.Aim.ReadValue<Vector2>();
-        Vector2 aimWorldPoint = Camera.main.ScreenToWorldPoint(aimInput);
+        //Vector2 aimInput = player.controls.Hecker.Aim.ReadValue<Vector2>();
+        //Vector2 aimWorldPoint = Camera.main.ScreenToWorldPoint(aimInput);
 
         Vector3 aimDirection = Vector3.zero;
         switch (aimInputType)
         {
             case AimType.mouse:
-                aimDirection = (aimWorldPoint - (Vector2)transform.position).normalized;
+                aimDirection = (player.aimWorldPoint - (Vector2)transform.position).normalized;
                 break;
             case AimType.joystick:
-                aimDirection = aimWorldPoint.normalized; // not tried and tested
+                aimDirection = player.aimWorldPoint.normalized; // not tried and tested
                 break;
             default:
                 break;
         }
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, aimDirection, 15f, LayerMask.GetMask("Terrain"));
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, aimDirection, 50f, LayerMask.GetMask("Terrain"));
         
         if(hit)
         {
             isHooked = true;
-            //ropeJoint = gameObject.AddComponent<FixedJoint2D>();
             attachedPoint = hit.point;
-            //rotationPoint = hit.point;
-            //hookedBody = hit.rigidbody;
             initialRopeLength = (attachedPoint - (Vector2)transform.position).magnitude;
         }
 
-        //Ray ray = Camera.current.ScreenPointToRay(Mouse.current.position.ReadValue());
-        //Vector2 mouseInput = new Vector2(ray.origin.x, ray.origin.y);
-
-        //Vector2 mouseInput = Camera.current.ScreenToViewportPoint(Mouse.current.position.ReadValue());
-
-
-        //print("Mousepos: " + mouseInput);
     }
 }
