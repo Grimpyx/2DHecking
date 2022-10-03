@@ -42,11 +42,13 @@ Material:
     m_Ints: []
     m_Floats:
     - _Ceil: 0.1
+    - _CoreBleed: 0.1
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Speed: 20
     m_Colors:
-    - _Color: {r: 95.87451, g: 0, b: 0, a: 1}
+    - _Color: {r: 194.01176, g: 25.897758, b: 0, a: 1}
+    - _ColorCore: {r: 1, g: 0.85079205, b: 0, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &1326591169751357524
 MonoBehaviour:
